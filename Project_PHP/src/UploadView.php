@@ -3,7 +3,7 @@
 require_once("src/UploadModel.php");
 
 class UploadView{
-	
+
 	private $model;
 	private $view;
 	private $msg = "";
@@ -13,27 +13,43 @@ class UploadView{
 		$this->model = $model;
 	}
 	
+	public function picWasClicked(){
+		$images = glob($this->picDir . "*.*");
+		
+		for($i = 0; $i < count($images); $i++){
+			$href = str_replace("src/uploadedPics/", "", $images[$i]);
+
+			if(isset($_GET["pic"])){
+				return true;
+			}
+			else{
+				return false;
+			}
+		}
+	}
+	
+	public function getClickedPic(){
+		return $_GET["pic"];
+	}
+	
 	public function showHTML(){
 		$images = glob($this->picDir . "*.*");
 		$imageStr = "";
 		$content = "";
 		$ret = "";
 		
-		foreach($images as $image){
-			$imageStr .= "<img src='" . $image . "' class='image' />";
+		for($i = 0; $i < count($images); $i++){
+			$href = str_replace("src/uploadedPics/", "", $images[$i]);
+			$imageStr .= "<a href='?pic=" . $i ."'><img src='" . $images[$i] . "' class='image' /></a>";
 		}
 		
 		if(isset($_GET["viewAll"])){
 			$content = "<div id='imageDiv'>" . $imageStr . "</div>";
 		}
+
 		else{
 			$content = "<div id='welcomeDiv'>
-			<p>Välkommen till min portfolio!
-			<br>Jättefin info.
-			<br>Massa info.
-			<br>Eller något annat, jag låter ödet bestämma.
-			<br>Med ödet menar jag att jag bestämmet mig sen vad som ska finnas här.
-			<br><br>Tack!</p>
+			<p>Välkommen till min portfolio! Lorem ipsum osv.</p>
 			</div>";
 		}
 		
@@ -44,21 +60,23 @@ class UploadView{
 		return $ret;
 	}
 	
+	public function showPicInfo($picId){
+		$ret = "";
+			
+		return $ret;
+	}
+	
 	public function showUploadForm(){
-		// if(isset($_FILES["file"])){
-			// $this->tryUpload();
-		// }
-		
-		if(isset($_POST["submit"])){
-			$this->tryUpload();
-		}
-		
 		$ret = "";
 		
 		$ret = "<div><p>$this->msg</p><form method='post'
 				enctype='multipart/form-data'>
 				<label for='file'>Image to upload:</label>
 				<input type='file' name='file' id='file'><br>
+				<label for='title'>Image title:</label>
+				<input type='text' name='title' id='text'><br>
+				<label for='desc'>Description:</label>
+				<input type='text' name='desc' id='desc'><br>
 				<input type='submit' name='submit' value='Submit'>
 				</form></div>";
 				
@@ -68,22 +86,10 @@ class UploadView{
 	public function tryUpload(){
 		$fileExtensions = array("jpeg", "jpg", "png");
 		$filename = $_FILES["file"]["name"];
+		$fileTmpName = $_FILES["file"]["tmp_name"];
 		$extension = pathinfo($filename, PATHINFO_EXTENSION);
 		
-		if(!in_array($extension, $fileExtensions)){
-			$this->msg = "Invalid file";
-			return false;
-		}
-		else{
-			if(file_exists("src/uploadedPics/" . $_FILES["file"]["name"])){
-				$this->msg = "File already exists";
-			}
-			else{
-				move_uploaded_file($_FILES["file"]["tmp_name"], $this->picDir . $filename);
-				$this->msg = "'" . $filename . "' uploaded successfully! <br> <img src='". $this->picDir . $filename . "' class='image' />";
-			}
-		
-		}
+		$this->msg = $this->model->checkFileExtension($filename, $fileTmpName, $this->picDir);
 	}
 	
 	public function didUserPressUpload(){
@@ -98,5 +104,30 @@ class UploadView{
 			return true;
 		}
 		return false;
+	}
+	
+	public function getTitle(){
+		if(isset($_POST["title"])){
+			return $_POST["title"];
+		}
+		else return "";
+	}
+	
+	public function getUrl(){
+		if(isset($_FILES["file"])){
+			return $_FILES["file"]["name"];
+		}
+		else return "";
+	}
+	
+	public function getDescription(){
+		if(isset($_POST["desc"])){
+			return $_POST["desc"];
+		}
+		else return "";
+	}
+	
+	public function getCategory(){
+		return "Kategori";
 	}
 }
