@@ -62,7 +62,7 @@ class UploadView{
 	
 	public function showPicInfo($picId){
 		$ret = "";
-			
+		$ret = "<p>Pic</p>" . $picId;
 		return $ret;
 	}
 	

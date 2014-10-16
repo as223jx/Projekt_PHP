@@ -28,9 +28,9 @@ class UploadController{
 		}
 				
 		if($this->view->picWasClicked()){
-			$this->view->getClickedPic();
+			return $this->view->showPicInfo($this->view->getClickedPic());
 		}
 
-		else return $this->view->showHTML();
+		return $this->view->showHTML();
 	}
 }
