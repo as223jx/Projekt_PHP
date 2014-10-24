@@ -12,16 +12,9 @@ session_start();
 $loginC = new LoginController();
 $loggedIn = $loginC->doLoginControll();
 
-if($loggedIn == true){
-	echo "Aaa";
-}
-else{
-	echo "Bbb";
-}
-
 $c = new UploadController();
 
-$htmlBody = $c->doUploadControll();
+$htmlBody = $c->doUploadControll($loggedIn);
 
 $view = new HTMLView();
 $view->echoHTML($htmlBody, $loggedIn);

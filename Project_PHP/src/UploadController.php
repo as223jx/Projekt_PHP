@@ -14,7 +14,16 @@ class UploadController{
 		$this->view = new UploadView($this->model);
 	}
 	
-	public function doUploadControll(){
+	public function doUploadControll($loginStatus){
+		if($loginStatus){
+			echo "logged in";
+		}
+		else{
+			echo "logged out";
+		}
+		if($this->view->didUserPressEdit()){
+			return $this->view->showEditForm();
+		}
 		
 		if($this->view->didUserPressSubmit()){
 			$pic = new Pic($this->view->getTitle(), $this->view->getUrl(), $this->view->getDescription(), $this->view->getCategory());
@@ -28,7 +37,7 @@ class UploadController{
 		}
 				
 		if($this->view->picWasClicked()){
-			return $this->view->showPicInfo($this->view->getClickedPic());
+			return $this->view->showPicInfo($this->view->getClickedPic(), $loginStatus);
 		}
 
 		return $this->view->showHTML();

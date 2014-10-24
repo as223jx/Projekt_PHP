@@ -22,9 +22,13 @@ body{
 	color: #999;
 }
 
-.image{
-	max-height: 500px;
+.thumb{
+	max-height: 170px;
 	margin: 10px;
+}
+
+.fullImage{
+	max-width: 1200px;
 }
 
 #loginoutBtn{
@@ -37,4 +41,7 @@ body{
 	position: absolute;
 	top: 0;
 	right: 70;
+}
+
+#desc{
 }
