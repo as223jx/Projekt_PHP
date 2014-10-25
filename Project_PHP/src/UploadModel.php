@@ -1,28 +1,33 @@
 <?php
 
 require_once ("src/connectionSettings.php");
+require_once("src/Pic.php");
 
 class UploadModel{
 
 	protected $dbConnection;
 	protected $dbTable = "pics";
 	private $db = "";
-	private static $title = "title";
-	private static $url = "url";
-	private static $description = "description";
-	private static $category = "category";
-	private static $id = "id";
+	private $title = "title";
+	private $url = "url";
+	private $description = "description";
+	private $category = "category";
+	private $id = "id";
+	private $picDir = "src/uploadedPics/";
+	private static $sTitle = "title";
+	private static $sUrl = "url";
+	private static $sDescription = "description";
+	private static $sCategory = "category";
+	private static $sId = "id";
 		
 	public function __construct(){
 		$this->db = $this->connection();
 	}
 
+	// Lägger till uppladdad blid i databasen.
 	public function addPic(Pic $pic) {
-	echo "addPic";
 	try{
-		//$db = $this->connection();
-
-    	$sql = "INSERT INTO $this->dbTable (" . self::$title . ", " . self::$url . ", " . self::$description . ", " . self::$category . ") VALUES (?, ?, ?, ?)";
+    	$sql = "INSERT INTO $this->dbTable (" . self::$sTitle . ", " . self::$sUrl . ", " . self::$sDescription . ", " . self::$sCategory . ") VALUES (?, ?, ?, ?)";
 
 		$params = array($pic->getTitle(), $pic->getUrl(), $pic->getDescription(), $pic->getCategory());
 
@@ -38,43 +43,90 @@ class UploadModel{
 		
 	}
 	
+	public function updatePic(Pic $pic){
+		try{
+	    	$sql = "UPDATE $this->dbTable SET " . self::$sTitle . "= '". $pic->getTitle() . "', " . self::$sDescription . "='"
+	    	 . $pic->getDescription() ."'," . self::$sCategory ."= '" . $pic->getCategory() . "' WHERE " . self::$sId ."= '" . $pic->getId() . "';";
+	
+			$query = $this->db->prepare($sql);
+		
+			$query->execute();
+			return "<p id='msg'>Sparat!</p>";
+		}
+		catch (\Exception $e) {
+			echo $e;
+			die("An error occured in the database!");
+		}
+		
+	}
+	
+	public function deletePicFromFolder($id){
+		$pic = $this->getPicInfo($id);
+		unlink($this->picDir . $pic->getUrl());
+	}
+	
+	public function deletePic($id){
+		try{
+			$this->db = $this->connection();
+	    	$sql = "DELETE FROM " . $this->dbTable . " WHERE " . self::$sId . "=" . $id . ";";
+			echo $sql;
+			$query = $this->db->prepare($sql);
+		
+			$query->execute();
+			return "<p id='msg'>Bild borttagen</p>";
+		}
+		catch (\Exception $e) {
+			echo $e;
+			die("An error occured in the database!");
+		}
+	}
+	
 	public function getAllPics(){
 		$i = 0;
 		
-		$sql = "SELECT * FROM pics ORDER BY title";
+		$sql = "SELECT * FROM ". $this->dbTable . " ORDER BY " . self::$sTitle;
 		foreach ($this->db->query($sql) as $pic){
-			$picArr[$i][self::$id] = $pic[self::$id];
-			$picArr[$i][self::$title] = $pic[self::$title];
-			$picArr[$i][self::$url] = $pic[self::$url];
-			$picArr[$i][self::$description] = $pic[self::$description];
-			$picArr[$i][self::$category] = $pic[self::$category];
-			$i ++;
+			$pic = new Pic($pic[self::$sId], $pic[self::$sTitle], $pic[self::$sUrl], $pic[self::$sDescription], $pic[self::$sCategory]);
+			$picArr[] = $pic;
 		}
+
 		return $picArr;
 	}
 	
+	// Returnerar Pic-objekt för vald bild.
 	public function getPicInfo($id){
-		$sql = $this->db->prepare("SELECT title, url, description, category FROM pics WHERE id = '" . $id . "';");
+		$sql = $this->db->prepare("SELECT " . self::$sTitle . ", " . self::$sUrl . ", " . self::$sDescription . ", " . self::$sCategory . " FROM ". $this->dbTable . " WHERE " . self::$sId . " = '" . $id . "';");
 		
 		if($sql->execute()){
 			while($pic = $sql->fetch(PDO::FETCH_ASSOC)){
-				$title = $pic[self::$title];
-				$url = $pic[self::$url];
-				$desc = $pic[self::$description];
-				$category = $pic[self::$category];
+				$title = $pic[self::$sTitle];
+				$url = $pic[self::$sUrl];
+				$desc = $pic[self::$sDescription];
+				$category = $pic[self::$sCategory];
 			}
+
+				$pic = new Pic($id, $title, $url, $desc, $category);
+		
+				$picArr[$this->title] = $title;
+				$picArr[$this->url] = $url;
+				$picArr[$this->description] = $desc;
+				$picArr[$this->category] = $category;
+				
+				$this->db = null;
+				return $pic;
 		}
-		
-		$picArr["title"] = $title;
-		$picArr["url"] = $url;
-		$picArr["description"] = $desc;
-		$picArr["category"] = $category;
-		
-		$this->db = null;
-		return $picArr;
 	}
 	
-	public function checkFileExtension($filename, $fileTmpName, $picDir){
+	public function getFileUploadInfo(){
+		$filename = $_FILES["file"]["name"];
+		$fileTmpName = $_FILES["file"]["tmp_name"];
+		$extension = pathinfo($filename, PATHINFO_EXTENSION);
+		
+		return $this->tryUpload($filename, $fileTmpName, $this->picDir);
+	}
+	
+	// Försöker ladda upp bilden i mappen.
+	public function tryUpload($filename, $fileTmpName, $picDir){
 		
 		$fileExtensions = array("jpeg", "jpg", "png");
 		$extension = pathinfo($filename, PATHINFO_EXTENSION);
