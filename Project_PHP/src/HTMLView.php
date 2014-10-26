@@ -34,6 +34,16 @@ class HTMLView {
 			<meta charset='UTF-8'>
 			<title>Portfolio - Alexandra Seppänen</title>
 			<link rel='stylesheet' type='text/css' href='src/style.css'>
+			<SCRIPT TYPE='text/javascript'>
+			function newCategory(value){
+				if(value == 'NewCategory'){
+					var categoryTextfield = document.getElementById('categoryTextfield');
+					var categoryLabel = document.getElementById('categoryLabel');
+					categoryTextfield.style.visibility = 'visible';
+					categoryLabel.style.visibility = 'visible';
+				}
+			}
+			</SCRIPT>
 			</head>
 			<body>
 				<div id='bodyDiv'>

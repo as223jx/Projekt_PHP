@@ -45,7 +45,7 @@ class UploadController{
 		if($this->view->didUserPressSubmit()){
 			$this->pic = new Pic(null, $this->view->getTitle(), $this->view->getUrl(), $this->view->getDescription(), $this->view->getCategory());
 			$this->model->addPic($this->pic);
-			$this->view->tryUpload();
+			$this->view->tryUpload($this->view->getUrl());
 			return $this->view->showUploadForm();
 		}
 		

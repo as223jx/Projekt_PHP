@@ -52,11 +52,10 @@ class UploadView{
 		$content = "";
 		$ret = "";
 		$i = 0;
-	
 		
 		foreach($picArr as $pic){
 			$imageStr .= "<a href='?pic=" . $pic->getId() ."'><img src='src/uploadedPics/" . $pic->getUrl() . "' class='thumb' /></a>"; 
-			$i ++;
+			//$i ++;
 		}
 		
 		if(isset($_GET["viewAll"])){
@@ -76,17 +75,6 @@ class UploadView{
 		return $ret;
 	}
 	
-	// public function showPicInfo($picId, $loginStatus){
-		// $pic = $this->model->getPicInfo($picId);
-		// $ret = "";
-		// if($loginStatus){
-			// $ret .= "<p><a href='?edit=$picId'>Redigera</a> <a href=''>Radera</a></p>";
-		// }
-		// $ret .= "<h3>" . $pic[self::$title] . "</h3><img src='src/uploadedPics/" . $pic[self::$url] . "' class='fullImage' /></a><p>" . $pic[self::$description] . "</p><p><b>Category:</b> " . $pic["category"] . "
-		// <p><a href='?viewAll'>Tillbaka</a></p>";
-		// return $ret;
-	// }
-	
 	public function showPicInfo($picId, $loginStatus){
 		$pic = $this->model->getPicInfo($picId);
 		$ret = "";
@@ -103,8 +91,15 @@ class UploadView{
 	
 	public function showUploadForm(){
 		$ret = "";
+		$categoryStr = "";
+	
+		$categories = $this->model->getCategories();
 		
-		$ret = "<div><p>$this->msg</p><form method='post'
+		foreach($categories as $category){
+			$categoryStr .= "<option value='". $category->getId() . "'>" . $category->getName() . "</option>";
+		}
+		
+		$ret = "<div><p>$this->msg</p><form id='upload' method='post'
 				enctype='multipart/form-data'>
 				<label for='file'>Image to upload:</label>
 				<input type='file' name='file' id='file'><br>
@@ -112,6 +107,13 @@ class UploadView{
 				<input type='text' name='title' id='text'><br>
 				<label for='desc'>Description:</label>
 				<textarea name='desc' id='desc' rows='10' cols='25'></textarea><br>
+				<label for='category'>Category:</label>
+				<select name='category' onChange='newCategory(this.value);'>
+					$categoryStr
+					<option value='NewCategory'>Ny kategori</option>
+				</select><br>
+				<label for='categoryTextfield' id='categoryLabel' class='hidden'>Ny kategori:</label>
+				<input type='text' name='categoryTextfield' id='categoryTextfield' class='hidden'><br>
 				<input type='submit' name='submit' value='Submit'>
 				</form></div>";
 				
@@ -121,13 +123,27 @@ class UploadView{
 	public function showEditForm(){
 		$pic = $this->model->getPicInfo($_GET["edit"]);
 		$ret = "";
+		$categoryStr = "";
+	
+		$categories = $this->model->getCategories();
 		
-		$ret = "<div><p id='msg'>$this->msg</p><img class='thumb' src='src/uploadedPics/" . $pic->getUrl() . "'><form method='post'
+		foreach($categories as $category){
+			$categoryStr .= "<option value='". $category->getId() . "'>" . $category->getName() . "</option>";
+		}
+		
+		$ret = "<div><p id='msg'>$this->msg</p><img class='thumb' src='src/uploadedPics/" . $pic->getUrl() . "'><form id='upload' method='post'
 				enctype='multipart/form-data'>
 				<label for='title'>Image title:</label>
 				<input type='text' name='title' id='text' value='" . $pic->getTitle() . "'><br>
 				<label for='desc'>Description:</label>
 				<textarea name='desc' id='desc' rows='10' cols='25'>" . $pic->getDescription() . "</textarea><br>
+				<label for='category'>Category:</label>
+				<select name='category' onChange='newCategory(this.value);'>
+					$categoryStr
+					<option value='NewCategory'>Ny kategori</option>
+				</select><br>
+				<label for='categoryTextfield' id='categoryLabel' class='hidden'>Ny kategori:</label>
+				<input type='text' name='categoryTextfield' id='categoryTextfield' class='hidden'><br>
 				<input type='submit' name='save' value='Save'>
 				</form></div>";
 				
@@ -153,8 +169,15 @@ class UploadView{
 		return $_GET["pic"];
 	}
 	
-	public function tryUpload(){	
-		$this->msg = "<p id='msg'>" . $this->model->getFileUploadInfo() . "</p>";
+	public function tryUpload($url){
+		$id = "";
+		$pics = $this->model->getAllPics();
+		foreach($pics as $pic){
+			if($url == $pic->getUrl()){
+				$id = $pic->getId();
+			}
+		}
+		$this->msg = "<p id='msg'>" . $this->model->getFileUploadInfo() . "</p><a href='?pic=" . $id . "'>Show picture</a>";
 	}
 	
 	public function didUserPressUpload(){
@@ -220,7 +243,14 @@ class UploadView{
 	}
 	
 	public function getCategory(){
-		return "Kategori";
+		if(isset($_POST["category"])){
+			
+			if($_POST["category"] == "NewCategory" && isset($_POST["categoryTextfield"])){
+				return $_POST["categoryTextfield"];
+			}
+			return $_POST["category"];
+		}
+		else return "";
 	}
 	
 	public function setMsg($msg){

@@ -45,3 +45,7 @@ body{
 
 #desc{
 }
+
+.hidden{
+	visibility: hidden;
+}
