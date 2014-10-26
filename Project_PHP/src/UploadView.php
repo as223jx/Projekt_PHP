@@ -8,44 +8,11 @@ class UploadView{
 	private $view;
 	private $msg = "";
 	private $picDir = "src/uploadedPics/";
-	// private static $id = "id";
-	// private static $url = "url";
-	// private static $description = "description";
-	// private static $title = "title";
 	
 	public function __construct(UploadModel $model){
 		$this->model = $model;
 	}
 	
-	// public function showHTML(){
-		// $picArr = $this->model->getAllPics();
-		// $imageStr = "";
-		// $content = "";
-		// $ret = "";
-		// $i = 0;
-// 		
-		// foreach($picArr as $pic){
-			// $imageStr .= "<a href='?pic=" . $pic[self::$id] ."'><img src='src/uploadedPics/" . $pic[self::$url] . "' class='thumb' /></a>"; 
-			// $i ++;
-		// }
-// 		
-		// if(isset($_GET["viewAll"])){
-			// $content = "<div id='imageDiv'>" . $imageStr . "</div>";
-		// }
-// 
-		// else{
-			// $content = "<div id='welcomeDiv'>
-			// <p>Välkommen till min portfolio! Lorem ipsum osv.</p>
-			// </div>";
-		// }
-// 		
-		// $ret = "<div>
-				// <p>$this->msg</p>$content
-				// </div>";
-// 		
-		// return $ret;
-	// }
-// 	
 	public function showHTML(){
 		$picArr = $this->model->getAllPics();
 		$imageStr = "";
@@ -55,7 +22,6 @@ class UploadView{
 		
 		foreach($picArr as $pic){
 			$imageStr .= "<a href='?pic=" . $pic->getId() ."'><img src='src/uploadedPics/" . $pic->getUrl() . "' class='thumb' /></a>"; 
-			//$i ++;
 		}
 		
 		if(isset($_GET["viewAll"])){
@@ -84,19 +50,25 @@ class UploadView{
 	        <input type='submit' name='delete' value='Delete' />
 	    	</form></p>";
 		}
-		$ret .= "<p id='msg'>" . $this->msg . "</p><h3>" . $pic->getTitle() . "</h3><img src='src/uploadedPics/" . $pic->getUrl() . "' class='fullImage' /></a><p>" . $pic->getDescription() . "</p><p><b>Category:</b> " . $pic->getCategory() . "
-		<p><a href='?viewAll'>Tillbaka</a></p>";
+		$ret .= "<p id='msg'>" . $this->msg . "</p><h3>" . $pic->getTitle() . "</h3><img src='src/uploadedPics/" . $pic->getUrl() . "' class='fullImage' /></a><p>" . $pic->getDescription() . 
+		"</p><p><b>Category:</b> " . $pic->getCategory() . " <p><a href='?viewAll'>Go to gallery</a></p>";
 		return $ret;
 	}
 	
 	public function showUploadForm(){
 		$ret = "";
 		$categoryStr = "";
+		$title = "";
+		$description = "";
 	
 		$categories = $this->model->getCategories();
 		
 		foreach($categories as $category){
 			$categoryStr .= "<option value='". $category->getId() . "'>" . $category->getName() . "</option>";
+		}
+		if(!$this->model->checkIfFileExists($this->getUrl())){
+			$title = $this->getTitle();
+			$description = $this->getDescription();
 		}
 		
 		$ret = "<div><p>$this->msg</p><form id='upload' method='post'
@@ -104,9 +76,9 @@ class UploadView{
 				<label for='file'>Image to upload:</label>
 				<input type='file' name='file' id='file'><br>
 				<label for='title'>Image title:</label>
-				<input type='text' name='title' id='text'><br>
+				<input type='text' name='title' id='text' value='" . $title . "'><br>
 				<label for='desc'>Description:</label>
-				<textarea name='desc' id='desc' rows='10' cols='25'></textarea><br>
+				<textarea name='desc' id='desc' rows='10' cols='25'>" . $description . "</textarea><br>
 				<label for='category'>Category:</label>
 				<select name='category' onChange='newCategory(this.value);'>
 					$categoryStr
@@ -169,15 +141,27 @@ class UploadView{
 		return $_GET["pic"];
 	}
 	
-	public function tryUpload($url){
-		$id = "";
+	public function uploadToFolder(Pic $pic){
 		$pics = $this->model->getAllPics();
-		foreach($pics as $pic){
-			if($url == $pic->getUrl()){
-				$id = $pic->getId();
+		$id = "";
+		foreach($pics as $existingPic){
+			if($pic->getUrl() == $existingPic->getUrl()){
+				$id = $existingPic->getId();
 			}
 		}
+		
 		$this->msg = "<p id='msg'>" . $this->model->getFileUploadInfo() . "</p><a href='?pic=" . $id . "'>Show picture</a>";
+		
+	}
+	
+	public function checkIfUniqueTitle($title){
+		$pics = $this->model->getAllPics();
+		foreach($pics as $pic){
+			if(strtolower($title) == strtolower($pic->getTitle())){
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	public function didUserPressUpload(){

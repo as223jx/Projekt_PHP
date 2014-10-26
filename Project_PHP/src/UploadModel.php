@@ -9,6 +9,7 @@ class UploadModel{
 	protected $dbConnection;
 	protected $dbTable = "pics";
 	protected $dbTableCategories = "categories";
+	private $msg = "Msg";
 	private $db = "";
 	private $title = "title";
 	private $url = "url";
@@ -28,33 +29,7 @@ class UploadModel{
 	}
 
 	// Lägger till uppladdad blid i databasen.
-	public function addPic(Pic $pic) {
-		// // Hämtar de existerande kategorierna.
-		// $categories = $this->getCategories();
-		// $newCategory = true;
-		// $categoryId = $pic->getCategory();
-// 		
-		// // Kollar om kategorin som skickades med i $pic redan finns.
-		// // $newCategory sätts till false om kategorin ej är ny.
-		// for($i = 0; count($categories) > $i; $i++){
-			// if($categories[$i]->getId() == $pic->getCategory()){
-				// $newCategory = false;
-			// }
-		// }
-// 		
-		// // Om en ny kategori ska skapas så läggs den till i databasen och sedan hämtas nya ID:t för kategorin ut.
-		// if($newCategory == true){
-			// $this->addCategory($pic->getCategory());
-			// $categories = $this->getCategories();
-			// for($i = 0; count($categories) > $i; $i++){
-				// if($categories[$i]->getName() == $pic->getCategory()){
-					// $categoryId = $categories[$i]->getId();
-				// }
-			// }
-		// }
-		// else{
-			// $categoryId = $pic->getCategory();
-		// }
+	public function addPicToDb(Pic $pic) {
 		
 		$categoryId = $this->checkIfNewCategory($pic);
 		
@@ -191,7 +166,8 @@ class UploadModel{
 				$category = $pic[self::$sCategory];
 			}
 			$sql = $this->db->prepare("SELECT " . self::$sCategoryName . " FROM " . $this->dbTableCategories . " WHERE id =" . $category);
-			try{$sql->execute();
+			try{
+				$sql->execute();
 				$category = $sql->fetch(PDO::FETCH_ASSOC);
 			}
 			catch(\Exception $e){
@@ -215,23 +191,58 @@ class UploadModel{
 	// Försöker ladda upp bilden i mappen.
 	public function tryUpload($filename, $fileTmpName, $picDir){
  		
- 		$fileExtensions = array("jpeg", "jpg", "png");
- 		$extension = pathinfo($filename, PATHINFO_EXTENSION);
- 		if(!in_array($extension, $fileExtensions)){
- 			return "Invalid file";
- 		}	
+ 		// $fileExtensions = array("jpeg", "jpg", "png");
+ 		// $extension = pathinfo($filename, PATHINFO_EXTENSION);
+ 		// if(!in_array($extension, $fileExtensions)){
+ 			// return "Invalid file";
+ 		// }	
  		
- 		else{
- 			if(file_exists("src/uploadedPics/" . $filename)){
- 				return "File already exists";
- 			}
- 			else{
- 				move_uploaded_file($fileTmpName, $picDir . $filename);
- 				echo $picDir . $filename;
- 				return "'" . $filename . "' uploaded successfully! <br> <img src='". $picDir . $filename . "' class='thumb' />";
- 			}
- 		}
+ 		// else{
+ 			// if(file_exists("src/uploadedPics/" . $filename)){
+ 				// $temp = explode(".", $filename);
+				// echo $filename;
+				// $name = str_replace("." . end($temp), "", $filename);
+				// $_FILES["file"]["name"] = $name . "1." . end($temp);
+				// $filename = $_FILES["file"]["name"];
+ 			// }
+ 			$i = 1;
+ 			 // while(file_exists($this->picDir . $filename)){
+ 				// $temp = explode(".", $filename);
+				// $name = str_replace("." . end($temp), "", $filename);
+				// $_FILES["file"]["name"] = $name . $i .".". end($temp);
+				// $filename = $_FILES["file"]["name"];
+				// $i++;
+ 			// }
+			try{
+				move_uploaded_file($fileTmpName, $picDir . $filename);
+				return "Image uploaded successfully! <br> <img src='". $picDir . $filename . "' class='thumb' />";
+			}
+			catch (\Exception $e){
+				echo $e;
+				die("An error occured when uploading file to directory!");
+			}
+ 		// }
  	}
+	
+	public function checkIfValidExtension($filename){
+		$fileExtensions = array("jpeg", "jpg", "png");
+ 		$extension = pathinfo($filename, PATHINFO_EXTENSION);
+ 		if(in_array($extension, $fileExtensions)){
+ 			return true;
+ 		}
+		return false;
+	}
+	
+	public function checkIfFileExists($filename){
+		if(file_exists($this->picDir . $filename)){
+			return true;
+		}
+		else return false;
+	}
+	
+	public function generateUniqueUrl($url){
+		return $url . "1";
+	}
 	
 	protected function connection() {
 		if ($this->dbConnection == NULL)
