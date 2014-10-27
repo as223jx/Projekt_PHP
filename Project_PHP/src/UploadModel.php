@@ -26,6 +26,7 @@ class UploadModel{
 		
 	public function __construct(){
 		$this->db = $this->connection();
+		chmod($this->picDir, 755);
 	}
 
 	// Lägger till uppladdad blid i databasen.
@@ -116,14 +117,14 @@ class UploadModel{
 	}
 	
 	public function deletePic($id){
+		$pic = $this->getPicInfo($id);
 		try{
 			// $this->db = $this->connection();
 	    	$sql = "DELETE FROM " . $this->dbTable . " WHERE " . self::$sId . "=" . $id . ";";
-			echo $sql;
 			$query = $this->db->prepare($sql);
 		
 			$query->execute();
-			return "<p id='msg'>Bild borttagen</p>";
+			return "<p id='msg'>'" . $pic->getTitle() . "' has been removed</p>";
 		}
 		catch (\Exception $e) {
 			echo $e;
@@ -131,10 +132,14 @@ class UploadModel{
 		}
 	}
 	
-	public function getAllPics(){
+	public function getAllPics($orderBy){
 		//$i = 0;
 		
-		$sql = "SELECT * FROM ". $this->dbTable . " ORDER BY " . self::$sCategory . "," . self::$sTitle;
+		$sql = "SELECT * FROM ". $this->dbTable . " ORDER BY ";
+		if($orderBy != null){
+			$sql .= $orderBy . ",";
+		}
+		$sql .= self::$sTitle;
 		foreach ($this->db->query($sql) as $pic){
 			$pic = new Pic($pic[self::$sId], $pic[self::$sTitle], $pic[self::$sUrl], $pic[self::$sDescription], $pic[self::$sCategory]);
 			$picArr[] = $pic;
@@ -180,48 +185,28 @@ class UploadModel{
 		}
 	}
 	
-	public function getFileUploadInfo(){
-		$filename = $_FILES["file"]["name"];
+	public function getFileUploadInfo(Pic $pic){
+		$filename = $pic->getUrl();
+		//$filename = $_FILES["file"]["name"];
 		$fileTmpName = $_FILES["file"]["tmp_name"];
 		$extension = pathinfo($filename, PATHINFO_EXTENSION);
-		
+	
 		return $this->tryUpload($filename, $fileTmpName, $this->picDir);
+
 	}
 	
 	// Försöker ladda upp bilden i mappen.
 	public function tryUpload($filename, $fileTmpName, $picDir){
- 		
- 		// $fileExtensions = array("jpeg", "jpg", "png");
- 		// $extension = pathinfo($filename, PATHINFO_EXTENSION);
- 		// if(!in_array($extension, $fileExtensions)){
- 			// return "Invalid file";
- 		// }	
- 		
- 		// else{
- 			// if(file_exists("src/uploadedPics/" . $filename)){
- 				// $temp = explode(".", $filename);
-				// echo $filename;
-				// $name = str_replace("." . end($temp), "", $filename);
-				// $_FILES["file"]["name"] = $name . "1." . end($temp);
-				// $filename = $_FILES["file"]["name"];
- 			// }
- 			$i = 1;
- 			 // while(file_exists($this->picDir . $filename)){
- 				// $temp = explode(".", $filename);
-				// $name = str_replace("." . end($temp), "", $filename);
-				// $_FILES["file"]["name"] = $name . $i .".". end($temp);
-				// $filename = $_FILES["file"]["name"];
-				// $i++;
- 			// }
+
 			try{
 				move_uploaded_file($fileTmpName, $picDir . $filename);
-				return "Image uploaded successfully! <br> <img src='". $picDir . $filename . "' class='thumb' />";
+				return true;
+				//return "Image uploaded successfully! <br> <img src='". $picDir . $filename . "' class='thumb' />";
 			}
 			catch (\Exception $e){
 				echo $e;
 				die("An error occured when uploading file to directory!");
 			}
- 		// }
  	}
 	
 	public function checkIfValidExtension($filename){
@@ -241,7 +226,18 @@ class UploadModel{
 	}
 	
 	public function generateUniqueUrl($url){
-		return $url . "1";
+		$ext = "." . pathinfo($url, PATHINFO_EXTENSION);
+		echo $ext;
+		$url = str_replace($ext, "1", $url);
+		return $url . $ext;
+	}
+	
+	public function getTitleTable(){
+		return self::$sTitle;
+	}
+	
+	public function getCategoryTable(){
+		return self::$sCategory;
 	}
 	
 	protected function connection() {

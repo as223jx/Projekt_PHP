@@ -17,4 +17,4 @@ $c = new UploadController();
 $htmlBody = $c->doUploadControll($loggedIn);
 
 $view = new HTMLView();
-$view->echoHTML($htmlBody, $loggedIn);
+$view->echoHTML($loginC->getHTML(), $htmlBody, $loggedIn);

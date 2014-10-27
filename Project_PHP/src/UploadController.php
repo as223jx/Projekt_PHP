@@ -18,13 +18,7 @@ class UploadController{
 	}
 	
 	public function doUploadControll($loginStatus){
-		if($loginStatus){
-			echo "logged in";
-		}
-		else{
-			echo "logged out";
-		}
-		
+
 		// Redigera bild
 		if($this->view->didUserPressSave()){
 			$this->pic = new Pic($this->view->getPicToBeEdited(), $this->view->getTitle(), $this->view->getUrl(), $this->view->getDescription(), $this->view->getCategory());
@@ -49,21 +43,27 @@ class UploadController{
 			//$this->model->addPic($this->pic);
 			if($this->view->checkIfUniqueTitle($this->view->getTitle())){
 				$url = $this->pic->getUrl();
+				echo $url;
+					while($this->model->checkIfFileExists($url)){
+						$url = $this->model->generateUniqueUrl($url);
+						echo $url;
+					}
+					if($this->model->checkIfValidExtension($url)){
+						$this->pic = new Pic(null, $this->view->getTitle(), $url, $this->view->getDescription(), $this->view->getCategory());
+						echo "ny url: " . $this->pic->getUrl();
+						if($this->view->uploadToFolder($this->pic)){
+							$this->model->addPicToDb($this->pic);	
+							$this->view->getUploadFeedback($this->pic);
+						}
+						
+					}
+					else{
+						$this->view->setMsg($this->invalidExtensionMsg);
+					}
 				
-				if($this->model->checkIfFileExists($this->pic->getUrl())){
-					$url = $this->model->generateUniqueUrl($this->pic->getUrl());
-				}
-				if($this->model->checkIfValidExtension($url)){
-					$this->pic = new Pic(null, $this->view->getTitle(), $url, $this->view->getDescription(), $this->view->getCategory());
-					$this->model->addPicToDb($this->pic);	
-					$this->view->uploadToFolder($this->pic);
-				}
-				else{
-					$this->view->setMsg($this->invalidExtensionMsg);
-				}
 			}
 			else{
-				$this->view->setMsg($this->notUniqueTitleMsg);
+				//$this->view->setMsg($this->notUniqueTitleMsg);
 			}
 			return $this->view->showUploadForm();
 		}

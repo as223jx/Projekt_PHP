@@ -1,5 +1,22 @@
+html{
+	overflow-y: scroll;
+}
 body{
-	background-color: #666;
+	margin-top:30px;
+	background-color: #999;
+}
+
+h1{
+	margin:10px;
+	color: #fff;
+}
+
+h3{
+	margin: 10px;
+}
+
+#header{
+	background-color: #70B0B5;
 }
 
 #container{
@@ -8,18 +25,48 @@ body{
 	margin-right: auto;
 }
 
+#content{
+	margin-top: 16px;
+	background-color: #333;
+	color: #999;
+	padding-left: 5px;
+	padding-top: 5px;
+}
+
 #welcomeDiv{
 	padding-top: 5px;
 	padding-left: 10px;
 	padding-bottom:5px;
-	background-color: #000;
+	background-color: #333;
 	color: #999;
 }
 
+#imageDiv button{
+	text-align: left;
+}
+
 #imageDiv{
-	background-color: #000;
+	background-color: #333;
 	text-align: center;
-	color: #999;
+	color: #70B0B5;
+}
+
+#editMenu{
+	text-align:left;
+}
+
+#editMenu button{
+	margin: 10px;
+	float: left;
+}
+
+#editMenu input{
+	margin-top: 10px;
+}
+
+#menu{
+	background-color:#333;
+	padding:5px;
 }
 
 .thumb{
@@ -40,7 +87,13 @@ body{
 #loginForm{
 	position: absolute;
 	top: 0;
-	right: 70;
+	right: 60px;
+}
+
+#loginMsg{
+	position:absolute;
+	top: -14;
+	right: 60px;
 }
 
 #desc{
@@ -48,4 +101,16 @@ body{
 
 .hidden{
 	visibility: hidden;
+}
+
+#menu button{
+	border: none;
+	background-color:#fff;
+}
+
+#sort{
+	background-color: #70B0B5;
+	color: #000;
+	text-align: left;
+	padding-left: 5px;
 }

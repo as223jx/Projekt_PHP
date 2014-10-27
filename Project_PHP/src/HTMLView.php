@@ -4,17 +4,18 @@ class HTMLView {
 	
 	private $uploadBtn = "";
 	private $startUrl = "/Project_PHP";
-	private $loginoutBtn = "<form method='post'><input type='submit' name='login' id='loginoutBtn' value='Log in'></form>";
+	//private $loginoutBtn = "<form method='post'><input type='submit' name='login' id='loginoutBtn' value='Log in'></form>";
+	//private $loginoutBtn = "";
 	private $loginForm = "";
 	
-	public function echoHTML($body, $loggedInStatus){
+	public function echoHTML($loginBody, $body, $loggedInStatus){
 		if ($body == NULL) {
 			throw new \Exception("Body can't be null");
 		}
 
 		if($loggedInStatus == true){
 			$this->uploadBtn = "<a href='?upload'><button>Upload image</button></a>";
-			$this->loginoutBtn = "<form method='post'><input type='submit' id='loginoutBtn' name='logout' value='Log out'></form>";
+			//$this->loginoutBtn = "<form method='post'><input type='submit' id='loginoutBtn' name='logout' value='Log out'></form>";
 		}
 		
 		if(isset($_POST["login"])){
@@ -29,7 +30,7 @@ class HTMLView {
 		}
 		
 		echo "
-			<!DOCTYPE html>
+<!DOCTYPE html>
 			<head>
 			<meta charset='UTF-8'>
 			<title>Portfolio - Alexandra Seppänen</title>
@@ -47,16 +48,8 @@ class HTMLView {
 			</head>
 			<body>
 				<div id='bodyDiv'>
-					$this->loginoutBtn
-					$this->loginForm
-					<div id='container'>
-						<h1>Portfolio</h1>
-						<h2>Alexandra Seppänen</h2>
-						<div id='menu'>
-						<a href='$this->startUrl'><button>Start</button></a>
-						<a href='?viewAll'><button>View all</button></a>
-						$this->uploadBtn
-						</div>
+				$loginBody
+
 						$body
 					</div>
 				</div>
