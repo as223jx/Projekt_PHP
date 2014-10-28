@@ -102,7 +102,7 @@ class UploadModel{
 			$query = $this->db->prepare($sql);
 		
 			$query->execute();
-			return "<p id='msg'>Sparat!</p>";
+			return "<p id='msg'>Saved!</p>";
 		}
 		catch (\Exception $e) {
 			echo $e;
@@ -124,8 +124,6 @@ class UploadModel{
 			$query = $this->db->prepare($sql);
 		
 			$query->execute();
-
-			return "<p id='msg'>'" . $pic->getTitle() . "' has been removed</p>";
 		}
 		catch (\Exception $e) {
 			echo $e;

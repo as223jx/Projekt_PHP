@@ -3,6 +3,8 @@
 class LoginModel{
 	
 	private $loggedInStatus = "loggedInStatus";
+	private static $username = "admin";
+	private static $password = "Password";
 	
 	public function __construct(){
 		
@@ -17,7 +19,7 @@ class LoginModel{
 	
 	public function login($username, $password){
 
-		if($username == "Admin" || $username == "admin" && $password == "Password"){
+		if(strtolower($username) == self::$username && $password == self::$password){
 			$_SESSION[$this->loggedInStatus] = 1;
 			return true;
 		}

@@ -10,10 +10,18 @@ class UploadView{
 	private $viewAll = "viewAll";
 	private $category = "category";
 	private $picDir = "src/uploadedPics/";
+	private $msgCookie = "msg";
+	private static $pic = "pic";
 	
 	
 	public function __construct(UploadModel $model){
 		$this->model = $model;
+		
+		// Om ett message finns i msg-kakan så sätts det till variabeln $this->msg och töms från kakan.
+		if(isset($_COOKIE[$this->msgCookie])){
+			$this->msg = $_COOKIE[$this->msgCookie];
+			setcookie($this->msgCookie, "", time() - 3600);
+		}
 	}
 	
 	public function showHTML(){
@@ -71,12 +79,13 @@ class UploadView{
 		
 		// Om det inte är valt att visa galleriet så visas startsidan
 		else{
-			$content = "
+			$content = "<div id='startDiv'>
 			<p>Välkommen till min portfolio! Lorem ipsum osv.</p>
+			</div>
 			";
 		}
 		
-		$ret = "<div id='welcomeDiv'>
+		$ret = "<div id='wrapperDiv'>
 				<p id='msg'>$this->msg</p>$content
 				</div>";
 		
@@ -177,18 +186,12 @@ class UploadView{
 	
 	// Kollar om en bild har blivit klickad
 	public function picWasClicked(){
-		// $images = glob($this->picDir . "*.*");
-// 		
-		// for($i = 0; $i < count($images); $i++){
-			// $href = str_replace("src/uploadedPics/", "", $images[$i]);
-
-			if(isset($_GET["pic"])){
+			if(isset($_GET[self::$pic])){
 				return true;
 			}
 			else{
 				return false;
 			}
-		//}
 	}
 	
 	// Returnerar bildens id som blivit klickad
@@ -196,12 +199,12 @@ class UploadView{
 		$pics = $this->model->getAllPics(null);
 		$exists = false;
 		foreach($pics as $pic){
-			if($pic->getId() == $_GET["pic"]){
+			if($pic->getId() == $_GET[self::$pic]){
 				$exists = true;
 			}
 		}
 		if($exists){
-			return $_GET["pic"];
+			return $_GET[self::$pic];
 		}
 		else{
 			return null;
@@ -323,6 +326,10 @@ class UploadView{
 			return $_POST["desc"];
 		}
 		else return "";
+	}
+	
+	public function setCookieMsg($msg){
+	    setcookie($this->msgCookie, $msg);
 	}
 	
 	public function getCategory(){

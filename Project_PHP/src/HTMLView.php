@@ -30,7 +30,7 @@ class HTMLView {
 		}
 		
 		echo "
-<!DOCTYPE html>
+			<!DOCTYPE html>
 			<head>
 			<meta charset='UTF-8'>
 			<title>Portfolio - Alexandra Seppänen</title>

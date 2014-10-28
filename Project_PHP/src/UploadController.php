@@ -23,8 +23,8 @@ class UploadController{
 		if($this->view->didUserPressSave()){
 			if(!$this->view->checkIfEmptyTitle($this->view->getTitle())){
 			$this->pic = new Pic($this->view->getPicToBeEdited(), $this->view->getTitle(), $this->view->getUrl(), $this->view->getDescription(), $this->view->getCategory());
-			$this->view->setMsg($this->model->updatePic($this->pic));
-			return $this->view->showPicInfo($this->pic->getId(), $loginStatus);
+			$this->view->setCookieMsg($this->model->updatePic($this->pic));
+			header ("Location: index.php?pic=" . $this->view->getPicToBeEdited());
 			}
 		}
 		
@@ -35,8 +35,8 @@ class UploadController{
 		// Radera bild
 		if($this->view->didUserPressDelete()){
 			$this->model->deletePicFromFolder($this->view->getClickedPic());
-			$this->view->setMsg($this->model->deletePic($this->view->getClickedPic()));
-			return $this->view->showHTML();
+			$this->view->setCookieMsg($this->model->deletePic($this->view->getClickedPic()));
+			header ("Location: Project_PHP/index.php?viewAll");
 		}
 		
 		// Ladda upp ny bild
