@@ -31,21 +31,21 @@ class UploadModel{
 
 	// Lägger till uppladdad blid i databasen.
 	public function addPicToDb(Pic $pic) {
-		
-		$categoryId = $this->checkIfNewCategory($pic);
-		
-		// Lägger in bilden med all info i databasen.
-		try{
-	    	$sql = "INSERT INTO $this->dbTable (" . self::$sTitle . ", " . self::$sUrl . ", " . self::$sDescription . ", " . self::$sCategory . ") VALUES (?, ?, ?, ?)";
-			$params = array($pic->getTitle(), $pic->getUrl(), $pic->getDescription(), $categoryId);
-			$query = $this->db->prepare($sql);
-			$query->execute($params);
+		if($this->checkIfFileExists($pic->getUrl())){
+			$categoryId = $this->checkIfNewCategory($pic);
+			
+			// Lägger in bilden med all info i databasen.
+			try{
+		    	$sql = "INSERT INTO $this->dbTable (" . self::$sTitle . ", " . self::$sUrl . ", " . self::$sDescription . ", " . self::$sCategory . ") VALUES (?, ?, ?, ?)";
+				$params = array($pic->getTitle(), $pic->getUrl(), $pic->getDescription(), $categoryId);
+				$query = $this->db->prepare($sql);
+				$query->execute($params);
+			}
+			catch (\Exception $e){
+				echo $e;
+				die("An error occured when trying to add pic to the database!");
+			}
 		}
-		catch (\Exception $e){
-			echo $e;
-			die("An error occured when trying to add pic to the database!");
-		}
-		
 	}
 
 	public function checkIfNewCategory(Pic $pic){
@@ -124,6 +124,7 @@ class UploadModel{
 			$query = $this->db->prepare($sql);
 		
 			$query->execute();
+
 			return "<p id='msg'>'" . $pic->getTitle() . "' has been removed</p>";
 		}
 		catch (\Exception $e) {
@@ -187,7 +188,6 @@ class UploadModel{
 	
 	public function getFileUploadInfo(Pic $pic){
 		$filename = $pic->getUrl();
-		//$filename = $_FILES["file"]["name"];
 		$fileTmpName = $_FILES["file"]["tmp_name"];
 		$extension = pathinfo($filename, PATHINFO_EXTENSION);
 	
@@ -201,7 +201,6 @@ class UploadModel{
 			try{
 				move_uploaded_file($fileTmpName, $picDir . $filename);
 				return true;
-				//return "Image uploaded successfully! <br> <img src='". $picDir . $filename . "' class='thumb' />";
 			}
 			catch (\Exception $e){
 				echo $e;
@@ -227,7 +226,6 @@ class UploadModel{
 	
 	public function generateUniqueUrl($url){
 		$ext = "." . pathinfo($url, PATHINFO_EXTENSION);
-		echo $ext;
 		$url = str_replace($ext, "1", $url);
 		return $url . $ext;
 	}

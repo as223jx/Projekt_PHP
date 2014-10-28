@@ -5,7 +5,7 @@ require_once("src/LoginModel.php");
 class LoginView{
 	private $model;
 	private $startUrl = "/Project_PHP";
-	private $msg = "hej";
+	private $msg = "";
 	private $uploadBtn = "";
 	
 	public function __construct(LoginModel $model){
@@ -31,6 +31,7 @@ class LoginView{
 		$ret .= "
 			$this->loginoutBtn
 			<div id='container'>
+				$this->msg
 				<div id='header'>
 					<h1>Portfolio</h1>
 					<h3>Alexandra Seppänen</h3>
@@ -41,6 +42,15 @@ class LoginView{
 					</div>
 				</div>";
 		return $ret;
+	}
+	
+	public function setMsg($value){
+		if($value == true){
+			$this->msg ="<p id='loginMsg'>You have logged in</p>";
+		}
+		else{
+			$this->msg = "<p id='loginMsg'>Wrong username or password</p>";
+		}
 	}
 	
 	public function didUserPressLoginSubmit(){
@@ -60,6 +70,7 @@ class LoginView{
 	public function didUserPressLogout(){
 		if(isset($_POST["logout"])){
 			$this->model->logout();
+			$this->msg = "<p id='loginMsg'>You have logged out</p>";
 			return true;
 		}
 		return false;

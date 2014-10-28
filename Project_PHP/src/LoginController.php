@@ -30,9 +30,11 @@ class LoginController{
 			$password = $this->view->getPasswordInput();
 			
 			if($this->model->login($username, $password)){
+				$this->view->setMsg(true);
 				return true;
 			}
-			echo "<p id='loginMsg'>Wrong username or password</p>";
+			$this->view->setMsg(false);
+			
 			return false;
 		}
 		

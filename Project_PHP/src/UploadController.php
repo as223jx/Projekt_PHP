@@ -21,9 +21,11 @@ class UploadController{
 
 		// Redigera bild
 		if($this->view->didUserPressSave()){
+			if(!$this->view->checkIfEmptyTitle($this->view->getTitle())){
 			$this->pic = new Pic($this->view->getPicToBeEdited(), $this->view->getTitle(), $this->view->getUrl(), $this->view->getDescription(), $this->view->getCategory());
 			$this->view->setMsg($this->model->updatePic($this->pic));
 			return $this->view->showPicInfo($this->pic->getId(), $loginStatus);
+			}
 		}
 		
 		if($this->view->didUserPressEdit()){
@@ -43,14 +45,11 @@ class UploadController{
 			//$this->model->addPic($this->pic);
 			if($this->view->checkIfUniqueTitle($this->view->getTitle())){
 				$url = $this->pic->getUrl();
-				echo $url;
 					while($this->model->checkIfFileExists($url)){
 						$url = $this->model->generateUniqueUrl($url);
-						echo $url;
 					}
 					if($this->model->checkIfValidExtension($url)){
 						$this->pic = new Pic(null, $this->view->getTitle(), $url, $this->view->getDescription(), $this->view->getCategory());
-						echo "ny url: " . $this->pic->getUrl();
 						if($this->view->uploadToFolder($this->pic)){
 							$this->model->addPicToDb($this->pic);	
 							$this->view->getUploadFeedback($this->pic);
@@ -74,6 +73,9 @@ class UploadController{
 		
 		// Visa bild
 		if($this->view->picWasClicked()){
+			if($this->view->getClickedPic() == null){
+				return $this->view->showHTML();
+			}
 			return $this->view->showPicInfo($this->view->getClickedPic(), $loginStatus);
 		}
 		

@@ -66,26 +66,35 @@ class UploadView{
 
 				" . $imageStr . "</div>";
 		}
-
+		
+		// Om det inte är valt att visa galleriet så visas startsidan
 		else{
-			$content = "<div id='welcomeDiv'>
+			$content = "
 			<p>Välkommen till min portfolio! Lorem ipsum osv.</p>
-			</div>";
+			";
 		}
 		
-		$ret = "<div>
+		$ret = "<div id='welcomeDiv'>
 				<p id='msg'>$this->msg</p>$content
 				</div>";
 		
 		return $ret;
 	}
 	
+	// Visar sidan och informationen för en enskild bild
 	public function showPicInfo($picId, $loginStatus){
 		$pic = $this->model->getPicInfo($picId);
 		$ret = "<div id='imageDiv'>";
+		
+		// Om inloggad visas redigera och ta bort-alternativ
 		if($loginStatus){
-			$ret .= "<div id='editMenu'><p><a href='?edit=$picId'><button>Edit</button></a>
-			<form action = '' method = 'post'>
+			$ret .= "
+			<script>function validate(form){
+					return confirm('Do you really want to delete the picture?');
+				}
+			</script>
+			<div id='editMenu'><p><a href='?edit=$picId'><button>Edit</button></a>
+			<form onsubmit='return validate(this);' action = '' method = 'post'>
 	        <input type='submit' name='delete' value='Delete' />
 	    	</form></p></div>";
 		}
@@ -94,17 +103,20 @@ class UploadView{
 		return $ret;
 	}
 	
+	// När admin vill ladda upp bild
 	public function showUploadForm(){
 		$ret = "";
 		$categoryStr = "";
 		$title = "";
 		$description = "";
 	
+		// Hämtar ut existerande kategorier och lägger i dropdown-listan för kategorier
 		$categories = $this->model->getCategories();
 		
 		foreach($categories as $category){
 			$categoryStr .= "<option value='". $category->getId() . "'>" . $category->getName() . "</option>";
 		}
+		
 		if(!$this->model->checkIfFileExists($this->getUrl())){
 			$title = $this->getTitle();
 			$description = $this->getDescription();
@@ -112,7 +124,7 @@ class UploadView{
 		
 		$ret = "<div id='content'><p>$this->msg</p><form id='upload' method='post'
 				enctype='multipart/form-data'>
-				<label for='file'>Image to upload (Max filesize: 8 MB):</label><br>
+				<label for='file'>Image to upload:</label><br>
 				<input type='file' name='file' id='file'><br>
 				<label for='title'>Image title:</label>
 				<input type='text' name='title' id='text' value='" . $title . "'><br>
@@ -131,6 +143,7 @@ class UploadView{
 		return $ret;
 	}
 	
+	// När admin vill redigera
 	public function showEditForm(){
 		$pic = $this->model->getPicInfo($_GET["edit"]);
 		$ret = "";
@@ -161,11 +174,12 @@ class UploadView{
 		return $ret;
 	}
 	
+	// Kollar om en bild har blivit klickad
 	public function picWasClicked(){
-		$images = glob($this->picDir . "*.*");
-		
-		for($i = 0; $i < count($images); $i++){
-			$href = str_replace("src/uploadedPics/", "", $images[$i]);
+		// $images = glob($this->picDir . "*.*");
+// 		
+		// for($i = 0; $i < count($images); $i++){
+			// $href = str_replace("src/uploadedPics/", "", $images[$i]);
 
 			if(isset($_GET["pic"])){
 				return true;
@@ -173,19 +187,34 @@ class UploadView{
 			else{
 				return false;
 			}
+		//}
+	}
+	
+	// Returnerar bildens id som blivit klickad
+	public function getClickedPic(){
+		$pics = $this->model->getAllPics(null);
+		$exists = false;
+		foreach($pics as $pic){
+			if($pic->getId() == $_GET["pic"]){
+				$exists = true;
+			}
+		}
+		if($exists){
+			return $_GET["pic"];
+		}
+		else{
+			return null;
 		}
 	}
 	
-	public function getClickedPic(){
-		return $_GET["pic"];
-	}
-	
+	// Laddar upp till bildmappen
 	public function uploadToFolder(Pic $pic){
 		if($this->model->getFileUploadInfo($pic)){
-			//$this->msg = "Image uploaded successfully! <br> <img src='". $this->picDir . $pic->getUrl() . "' class='thumb' />";
-			return true;
+			if($this->model->checkIfFileExists($pic->getUrl())){
+				return true;
+			}
 		}
-		$this->msg = "<p>Could not upload picture!</p>";
+		$this->msg = "<p>File is too big!</p>";
 		return false;
 	}
 	
@@ -201,6 +230,7 @@ class UploadView{
 		$this->msg = "<p id='msg'>Image uploaded successfully! <br> <img src='". $this->picDir . $pic->getUrl() . "' class='thumb' /></p><a href='?pic=" . $id . "'>Show picture</a>";
 	}
 	
+	// Kollar om titeln som angetts innehåller något samt är unik
 	public function checkIfUniqueTitle($title){
 		if($title == null || strlen($title) < 1){
 			$this->msg = "<p>Please choose a title!</p>";
@@ -216,6 +246,14 @@ class UploadView{
 			return true;
 	}
 	
+	public function checkIfEmptyTitle($title){
+		if($title == null || strlen($title) < 1){
+			$this->msg = "<p>Please choose a title!</p>";
+			return true;
+		}
+	}
+	
+	// Kollar hur användaren vill sortera bilderna
 	public function getOrderByOption(){
 		if(isset($_GET[$this->viewAll])){
 			return $_GET[$this->viewAll];
@@ -223,6 +261,7 @@ class UploadView{
 		return "";
 	}
 	
+	// Hyfsat självförklarande funktioner vv
 	public function didUserPressUpload(){
 		if(isset($_GET["upload"])){
 			return true;
