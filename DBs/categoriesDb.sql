@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Värd: 127.0.0.1
--- Tid vid skapande: 26 okt 2014 kl 18:14
+-- Tid vid skapande: 28 okt 2014 kl 19:04
 -- Serverversion: 5.6.15-log
 -- PHP-version: 5.5.8
 
@@ -30,19 +30,14 @@ CREATE TABLE IF NOT EXISTS `categories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `categoryName` varchar(30) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=9 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=12 ;
 
 --
 -- Dumpning av Data i tabell `categories`
 --
 
 INSERT INTO `categories` (`id`, `categoryName`) VALUES
-(1, 'Digital art'),
-(2, 'Traditional Art'),
-(5, 'Work in progress'),
-(6, 'Sketch'),
-(7, 'Illustrator'),
-(8, 'Test');
+(11, 'Digital Art');
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

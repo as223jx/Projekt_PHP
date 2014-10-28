@@ -1,6 +1,6 @@
 <?php
 
-require_once ("src/connectionSettings.php");
+require_once("src/connectionSettings.php");
 require_once("src/Pic.php");
 require_once("src/Category.php");
 
@@ -134,8 +134,7 @@ class UploadModel{
 	}
 	
 	public function getAllPics($orderBy){
-		//$i = 0;
-		
+		$picArr = array();
 		$sql = "SELECT * FROM ". $this->dbTable . " ORDER BY ";
 		if($orderBy != null){
 			$sql .= $orderBy . ",";
@@ -150,8 +149,7 @@ class UploadModel{
 	}
 	
 	public function getCategories(){
-		$i = 0;
-		
+		$categoryArr = array();
 		$sql = "SELECT * FROM ". $this->dbTableCategories . " ORDER BY " . self::$sCategoryName;
 		foreach ($this->db->query($sql) as $category){
 			$category = new Category($category[self::$sId], $category[self::$sCategoryName]);

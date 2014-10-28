@@ -56,9 +56,11 @@ class UploadView{
 					$categoryStr = "";
 				}
 			}
-			$imageStr .= $categoryStr. "<a href='?pic=" . $pic->getId() ."'><img src='src/uploadedPics/" . $pic->getUrl() . "' class='thumb' /></a>"; 
+			$imageStr .= $categoryStr. "<a href='?pic=" . $pic->getId() ."'><img src='src/uploadedPics/" . $pic->getUrl() . "' class='thumb' /></a>";
 		}
-		
+		if(strlen($imageStr) < 1){
+			$imageStr = "<p>No pics to show!</p>";
+		}
 		if(isset($_GET[$this->viewAll])){
 			$content = "
 				<div id='imageDiv'><div id='sort'><p>Sort by:	<a href='?viewAll=" . $this->model->getTitleTable() . "'>Title</a>
@@ -112,7 +114,6 @@ class UploadView{
 	
 		// Hämtar ut existerande kategorier och lägger i dropdown-listan för kategorier
 		$categories = $this->model->getCategories();
-		
 		foreach($categories as $category){
 			$categoryStr .= "<option value='". $category->getId() . "'>" . $category->getName() . "</option>";
 		}
