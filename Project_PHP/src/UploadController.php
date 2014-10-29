@@ -24,7 +24,7 @@ class UploadController{
 			if(!$this->view->checkIfEmptyTitle($this->view->getTitle())){
 			$this->pic = new Pic($this->view->getPicToBeEdited(), $this->view->getTitle(), $this->view->getUrl(), $this->view->getDescription(), $this->view->getCategory());
 			$this->view->setCookieMsg($this->model->updatePic($this->pic));
-			header ("Location: index.php?pic=" . $this->view->getPicToBeEdited());
+			$this->view->picHeader();
 			}
 		}
 		
@@ -36,7 +36,7 @@ class UploadController{
 		if($this->view->didUserPressDelete()){
 			$this->model->deletePicFromFolder($this->view->getClickedPic());
 			$this->view->setCookieMsg($this->model->deletePic($this->view->getClickedPic()));
-			header ("Location: Project_PHP/index.php?viewAll");
+			$this->view->viewAllHeader();
 		}
 		
 		// Ladda upp ny bild

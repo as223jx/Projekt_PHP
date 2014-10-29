@@ -332,6 +332,14 @@ class UploadView{
 	    setcookie($this->msgCookie, $msg);
 	}
 	
+	public function picHeader(){
+		header ("Location: index.php?pic=" . $this->getPicToBeEdited());
+	}
+	
+	public function viewAllHeader(){
+		header ("Location: index.php?viewAll");
+	}
+	
 	public function getCategory(){
 		if(isset($_POST["category"])){
 			
