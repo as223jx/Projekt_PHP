@@ -20,7 +20,7 @@ class UploadController{
 	public function doUploadControll($loginStatus){
 
 		// Redigera bild
-		if($this->view->didUserPressSave()){
+		if($this->view->didUserPressSave() && $loginStatus){
 			if(!$this->view->checkIfEmptyTitle($this->view->getTitle())){
 			$this->pic = new Pic($this->view->getPicToBeEdited(), $this->view->getTitle(), $this->view->getUrl(), $this->view->getDescription(), $this->view->getCategory());
 			$this->view->setCookieMsg($this->model->updatePic($this->pic));
@@ -28,19 +28,19 @@ class UploadController{
 			}
 		}
 		
-		if($this->view->didUserPressEdit()){
+		if($this->view->didUserPressEdit() && $loginStatus){
 			return $this->view->showEditForm();
 		}
 		
 		// Radera bild
-		if($this->view->didUserPressDelete()){
+		if($this->view->didUserPressDelete() && $loginStatus){
 			$this->model->deletePicFromFolder($this->view->getClickedPic());
 			$this->view->setCookieMsg($this->model->deletePic($this->view->getClickedPic()));
 			$this->view->viewAllHeader();
 		}
 		
 		// Ladda upp ny bild
-		if($this->view->didUserPressSubmit()){
+		if($this->view->didUserPressSubmit() && $loginStatus){
 			$this->pic = new Pic(null, $this->view->getTitle(), $this->view->getUrl(), $this->view->getDescription(), $this->view->getCategory());
 			//$this->model->addPic($this->pic);
 			if($this->view->checkIfUniqueTitle($this->view->getTitle())){
@@ -67,7 +67,7 @@ class UploadController{
 			return $this->view->showUploadForm();
 		}
 		
-		if($this->view->didUserPressUpload()){
+		if($this->view->didUserPressUpload() && $loginStatus){
 			return $this->view->showUploadForm();
 		}
 		
